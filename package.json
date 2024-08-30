@@ -14,6 +14,7 @@
     "@types/uploadcare": "^0.4.4"
   },
   "dependencies": {
+    "@uploadcare/file-uploader": "^1.5.2",
     "dotenv": "^16.4.5",
     "faker": "^6.6.6",
     "jest-junit": "^16.0.0",
