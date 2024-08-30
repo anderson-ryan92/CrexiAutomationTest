@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { uploadFile } from 'uploadcare';
+import { uploadFile } from 'uploadcare/upload-client';
 
 const UPLOADCARE_PUBLIC_KEY = process.env.UPLOADCARE_PUBLIC_KEY;
 
