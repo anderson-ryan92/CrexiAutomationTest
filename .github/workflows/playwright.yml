@@ -13,10 +13,13 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+
     - name: Install dependencies
       run: npm ci
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+
     - name: Run Playwright tests
       run: npx playwright test
     - uses: actions/upload-artifact@v4
@@ -25,3 +28,11 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+        
+    - name: Aggregate and upload test report to Uploadcare
+      if: always()
+      env:
+        UPLOADCARE_PUBLIC_KEY: ${{ secrets.UPLOADCARE_PUBLIC_KEY }}
+      run: |
+        npm install uploadcare @types/node
+        npx ts-node scripts/upload-report.ts

@@ -19,8 +19,4 @@ export class PropertiesPage {
         this.excludeUnpricecListingsCheckbox = page.locator('input[type="checkbox"]');
         this.applyButton = page.getByRole('button', { name: 'Apply' });
     }
-
-
-
-
 }

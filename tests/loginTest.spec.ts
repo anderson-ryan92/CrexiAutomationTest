@@ -3,6 +3,7 @@ import { HomePage } from '../pages/HomePage';
 import { faker } from '@faker-js/faker';
 import { PropertiesPage } from '../pages/PropertiesPage';
 import * as dotenv from 'dotenv';
+import { ProfilePage } from '../pages/ProfilePage';
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -11,9 +12,14 @@ test('user can signup', async ({ page }) => {
   // Generate random credentials
   const randomEmail = faker.internet.email();
   const randomPassword = faker.internet.password();
+  const randomFirstName = faker.person.firstName();
+  const randomLastName = faker.person.lastName();
+  const randomPhoneNumber = faker.string.numeric(10);
 
   console.log(`Generated Email: ${randomEmail}`);
   console.log(`Generated Password: ${randomPassword}`);
+  console.log(`Generated Name: ${randomFirstName} ${randomLastName}`);
+  console.log(`Generated Phone: ${randomPhoneNumber}`);
 
   const homePage = new HomePage(page);
 
@@ -21,9 +27,9 @@ test('user can signup', async ({ page }) => {
 
   await homePage.loginOrSignupButton.click();
 
-  await homePage.firstNameField.fill('Ryan');
+  await homePage.firstNameField.fill(randomFirstName);
 
-  await homePage.lastNameField.fill('Anderson');
+  await homePage.lastNameField.fill(randomLastName);
 
   await page.fill('input[name="email"]', randomEmail);
 
@@ -33,11 +39,11 @@ test('user can signup', async ({ page }) => {
 
   await page.getByTestId('dropdownItem-Other').click();
 
-  await homePage.phoneNumberField.fill('4803997792');
+  await homePage.phoneNumberField.fill(randomPhoneNumber);
 
   await homePage.signupButton.click();
 
-  await page.waitForSelector('text=Signup successful');
+  await expect(page.getByText('Signup successful')).toBeVisible({ timeout: 10000 });
 
 });
 
@@ -55,7 +61,14 @@ test('user can login', async ({ page }) => {
 
     await homePage.loginTab.click();
 
-    await page.pause();
+    // tried to avoid using hardcoded waits but the test kept failing intermittently without it
+    await page.waitForTimeout(3000);
+
+    // used these dynamic waits but the test was still flaky, hence why I used the waitForTimeout method above
+    await homePage.emailField.waitFor({ state: 'attached' });
+    await homePage.passwordField.waitFor({ state: 'attached' });
+    await homePage.emailField.waitFor({ state: 'visible' });
+    await homePage.passwordField.waitFor({ state: 'visible' });
 
     await homePage.emailField.fill(username);
 
@@ -71,22 +84,24 @@ test('user can login', async ({ page }) => {
   test('Profile Update: Users can update their profile picture', async ({ page }) => {
 
     const homePage = new HomePage(page);
+    const profilePage = new ProfilePage(page);
 
     await page.goto('https://crexi.com');
 
+    // created a helper login function
     await homePage.login('anderson.ryan1992@gmail.com', 'Crexcrex99!!');
 
     await page.goto('https://www.crexi.com/dashboard/profile');
   
-    await page.getByTestId('userAvatar').click();
+    await profilePage.changePhotoButton.click();
 
-    await page.getByTestId('fileUploader-avatar').getByRole('textbox', { name: 'Click to upload your photo' }).click();
+    await profilePage.fileUploadAvatar.click();
 
-    await page.getByTestId('fileUploader-avatar').getByRole('textbox', { name: 'Click to upload your photo' }).setInputFiles('/Users/ryananderson/Desktop/BW16238-1-0022.jpg');
+    await profilePage.fileUploadAvatar.setInputFiles('/Users/ryananderson/Desktop/BW16238-1-0022.jpg');
 
-    await page.getByRole('button', { name: 'Update' }).click();
+    await profilePage.editInfoUpdateButton.click();
 
-    await page.getByTestId('notification').isVisible();
+    await profilePage.successNotification.isVisible();
 
     await expect(page.getByText('Your personal info has been updated.')).toBeVisible();
 
