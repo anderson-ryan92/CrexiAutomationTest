@@ -10,7 +10,8 @@
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "@playwright/test": "^1.46.1",
-    "@types/node": "^22.5.1"
+    "@types/node": "^22.5.1",
+    "@types/uploadcare": "^0.4.4"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
