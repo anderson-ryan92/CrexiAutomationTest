@@ -11,10 +11,13 @@
     "@faker-js/faker": "^8.4.1",
     "@playwright/test": "^1.46.1",
     "@types/node": "^22.5.1",
-    "@types/uploadcare": "^0.4.4"
+    "@types/uploadcare": "^0.4.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
   },
   "dependencies": {
     "@uploadcare/file-uploader": "^1.5.2",
+    "@uploadcare/upload-client": "^6.14.1",
     "dotenv": "^16.4.5",
     "faker": "^6.6.6",
     "jest-junit": "^16.0.0",
