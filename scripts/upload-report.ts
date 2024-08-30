@@ -30,7 +30,11 @@ async function uploadReport() {
       store: true
     });
 
-    console.log(`Test report uploaded successfully. URL: ${result.originalUrl}`);
+    if (typeof result === 'object' && 'file' in result) {
+      console.log(`Test report uploaded successfully. File ID: ${result.file}`);
+    } else {
+      console.error('Unexpected result format from uploadFile');
+    }
   } catch (error) {
     console.error('Error uploading test report:', error);
     process.exit(1);
