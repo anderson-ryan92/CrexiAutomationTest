@@ -4,11 +4,12 @@ export class PropertiesPage {
 
     readonly page : Page;
     readonly propertyTile : Locator;
-    readonly anyPriceDropdown : Locator
-    readonly priceBox : Locator
-    readonly minValueInput : Locator
-    readonly excludeUnpricecListingsCheckbox : Locator
-    readonly applyButton : Locator
+    readonly anyPriceDropdown : Locator;
+    readonly priceBox : Locator;
+    readonly minValueInput : Locator;
+    readonly excludeUnpricecListingsCheckbox : Locator;
+    readonly applyButton : Locator;
+    readonly propertyTiles : Locator;
 
     constructor(page : Page) {
         this.page = page;
@@ -18,5 +19,6 @@ export class PropertiesPage {
         this.minValueInput = page.locator('input[name="minValue"]');
         this.excludeUnpricecListingsCheckbox = page.locator('input[type="checkbox"]');
         this.applyButton = page.getByRole('button', { name: 'Apply' });
+        this.propertyTiles = page.locator('crx-property-tile-aggregate[data-cy="propertyTile"]');
     }
 }

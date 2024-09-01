@@ -1,0 +1,44 @@
+{
+    "dev_users": [
+      {
+        "email": "anderson.ryan1992@gmail.com",
+        "password": "password123"
+      },
+      {
+        "email": "",
+        "password": ""
+      },
+      {
+        "email": "",
+        "password": ""
+      }
+    ],
+    "qa_users": [
+      {
+        "email": "anderson.ryan1992@gmail.com",
+        "password": "password123"
+      },
+      {
+        "email": "",
+        "password": ""
+      },
+      {
+        "email": "",
+        "password": ""
+      }
+    ],
+    "prod_users": [
+      {
+        "email": "anderson.ryan1992@gmail.com",
+        "password": "Qatesting321"
+      },
+      {
+        "email": "",
+        "password": ""
+      },
+      {
+        "email": "",
+        "password": ""
+      } 
+    ]
+  }

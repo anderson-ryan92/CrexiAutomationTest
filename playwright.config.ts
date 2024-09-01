@@ -1,5 +1,29 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const environments = {
+  dev: {
+    baseURL: 'https://dev.crexi.com',
+    apiURL: 'https://api-dev.crexi.com',
+  },
+  staging: {
+    baseURL: 'https://staging.crexi.com',
+    apiURL: 'https://api-staging.crexi.com',
+  },
+  prod: {
+    baseURL: 'https://www.crexi.com',
+    apiURL: 'https://api.crexi.com',
+  },
+};
+
+const environment = process.env.TEST_ENV || 'dev';
+
+if (!environments[environment]) {
+  console.error(`Invalid environment: ${environment}. Valid options are: ${Object.keys(environments).join(', ')}`);
+  process.exit(1);
+}
+
+const envConfig = environments[environment];
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -13,7 +37,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: true,
+  fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -25,7 +49,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
 
-    headless: true, // Set headless to false to make the browser visible
+    headless: false, // Set headless to false to make the browser visible
     // You can also set other options here like viewport size, etc.
     viewport: { width: 1280, height: 720 },
     browserName: 'chromium',
@@ -35,6 +59,7 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     testIdAttribute: 'data-cy',
+    baseURL: envConfig.baseURL,
   },
 
   /* Configure projects for major browsers */

@@ -2,40 +2,92 @@ name: Playwright Tests and Report Upload
 
 on:
   push:
-    branches: [ main ]  # adjust this to your needs
+    branches: [ main ]
   pull_request:
-    branches: [ main ]  # adjust this to your needs
+    branches: [ main ]
 
 jobs:
-  test:
+  playwright-tests:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
-
+    environment: prod
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.16.0' #specify the Node.js version
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Use Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'  # adjust this to your Node.js version
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Run Playwright tests
+        run: TEST_ENV=prod  npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
 
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps
+      - name: Upload blob report to GitHub Actions Artifacts
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shardIndex }}
+          path: blob-report
+          retention-days: 1
+  merge-reports:
+    # Merge reports after playwright-tests, even if some shards have failed
+    if: ${{ !cancelled() }}
+    needs: [playwright-tests]
 
-    - name: Run Playwright tests
-      run: npx playwright test
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.16.0'
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: playwright-report
-        path: playwright-report/
+      - name: Download blob reports from GitHub Actions Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
 
-    - name: Upload report to Uploadcare
-      env:
-        UPLOADCARE_PUBLIC_KEY: ${{ secrets.UPLOADCARE_PUBLIC_KEY }}
-        UPLOADCARE_PRIVATE_KEY: ${{ secrets.UPLOADCARE_PRIVATE_KEY }}
-      run: npx ts-node scripts/upload-report.ts
+      - name: Merge into HTML Report
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name: Upload HTML report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report--attempt-${{ github.run_attempt }}
+          path: playwright-report
+          retention-days: 14
+
+  upload-report-to-uploadcare:
+    needs: merge-reports
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Download HTML report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: html-report--attempt-${{ github.run_attempt }}
+          path: ./downloaded-report
+
+      - name: Zip the downloaded report directory
+        run: |
+          zip -r ./downloaded-report/html-report--attempt-${{ github.run_attempt }}.zip ./downloaded-report
+      - name: Upload report to UploadCare
+        env:
+          UPLOADCARE_PUB_KEY: ${{ secrets.UPLOADCARE_PUBLIC_KEY }}
+        run: |
+          curl -F "UPLOADCARE_PUB_KEY=${UPLOADCARE_PUB_KEY}" \
+            -F "file=@./downloaded-report/html-report--attempt-${{ github.run_attempt }}.zip" \
+            -F "UPLOADCARE_STORE=auto" \
+            "https://upload.uploadcare.com/base/"
