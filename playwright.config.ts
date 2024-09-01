@@ -37,7 +37,7 @@ const envConfig = environments[environment];
 export default defineConfig({
   testDir: './tests',
   /* Run tests in files in parallel */
-  fullyParallel: false,
+  fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -49,7 +49,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
 
-    headless: false, // Set headless to false to make the browser visible
+    headless: true, // Set headless to false to make the browser visible
     // You can also set other options here like viewport size, etc.
     viewport: { width: 1280, height: 720 },
     browserName: 'chromium',
