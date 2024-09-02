@@ -75,6 +75,9 @@ export class HomePage {
     await this.passwordField.fill(passwordVal);
     await this.loginButton.waitFor({ state: 'visible' });
     await this.loginButton.click();
+
+    // wait for page to fully load
+    await this.page.waitForTimeout(2000);
     await this.welcomePageheader.waitFor({ state: 'visible'});
 }
 

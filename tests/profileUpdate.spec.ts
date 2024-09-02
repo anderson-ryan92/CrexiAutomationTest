@@ -7,7 +7,7 @@ const user = getTestUser(0);
 
 
 test.beforeEach(async ({ page }) => {
-  
+
     await page.goto('/');
     const homePage = new HomePage(page);
     await homePage.login(user.email, user.password);
@@ -20,7 +20,6 @@ test('Profile Update: Users can update their profile picture', async ({ page }) 
     await profilePage.uploadPhoto('./test-assests/crexi-pic.jpg');
     await profilePage.successNotification.isVisible();
     await expect(page.getByText('Your personal info has been updated.')).toBeVisible();
-
   });
 
 
